@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "SavedJourney": {
+      "title": "SavedJourney",
+      "description": "A curated heritage journey and travel plan saved by the authenticated user.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique identifier of the saved journey document."
+        },
+        "userId": {
+          "type": "string",
+          "description": "The owner's Firebase Authentication UID."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp of when the journey was saved."
+        },
+        "destination": {
+          "type": "string",
+          "description": "The destination name."
+        },
+        "params": {
+          "type": "object",
+          "description": "The parameters submitted to curate this journey."
+        },
+        "journey": {
+          "type": "object",
+          "description": "The full curated JourneyResponse object returned by the model."
+        }
+      },
+      "required": ["id", "userId", "createdAt", "destination", "params", "journey"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/journeys/{journeyId}": {
+      "schema": "SavedJourney",
+      "description": "Collection of curated slow travel itineraries saved by individual users."
+    }
+  }
+}

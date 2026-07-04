@@ -1,0 +1,6 @@
+{
+  "name": "Roamora",
+  "description": "An elite AI travel planner, cultural storyteller, heritage expert, local guide, and immersive experience designer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
