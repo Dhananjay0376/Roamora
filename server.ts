@@ -10,76 +10,74 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
 
-  // Middleware for parsing JSON bodies
-  app.use(express.json());
+// Middleware for parsing JSON bodies
+app.use(express.json());
 
-  // API Endpoint: Generate Immersive Travel Journey
-  app.post('/api/generate-journey', async (req, res) => {
-    try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        return res.status(400).json({
-          error: 'Gemini API key is not configured. Please set the GEMINI_API_KEY in the Secrets panel in AI Studio.'
-        });
-      }
-
-      const params = req.body || {};
-      let {
-        destination,
-        duration,
-        travelers,
-        ageGroup,
-        budget,
-        travelStyle = [],
-        physicalLimitations = 'None',
-        languagesKnown = 'English',
-        dietaryRestrictions = 'None',
-        accessibilityRequirements = 'None',
-        transportationPreference = 'Any',
-        interests = []
-      } = params;
-
-      // 1. INPUT VALIDATION & SANITIZATION
-      if (!destination || typeof destination !== 'string') {
-        return res.status(400).json({ error: 'Destination must be a non-empty string.' });
-      }
-      destination = destination.trim().replace(/[<>]/g, '').slice(0, 100); // Strip potential tags & cap size
-
-      const parsedDuration = Math.min(Math.max(parseInt(String(duration), 10) || 3, 1), 14);
-      const parsedTravelers = Math.min(Math.max(parseInt(String(travelers), 10) || 1, 1), 20);
-
-      const validatedAgeGroup = typeof ageGroup === 'string' ? ageGroup.trim().slice(0, 30) : '20s-40s';
-      const validatedBudget = typeof budget === 'string' ? budget.trim().slice(0, 20) : 'moderate';
-
-      const validatedTravelStyle = Array.isArray(travelStyle) 
-        ? travelStyle.filter(item => typeof item === 'string').map(item => item.slice(0, 50))
-        : [];
-      const validatedInterests = Array.isArray(interests)
-        ? interests.filter(item => typeof item === 'string').map(item => item.slice(0, 50))
-        : [];
-
-      const cleanPhysicalLimitations = typeof physicalLimitations === 'string' ? physicalLimitations.slice(0, 200) : 'None';
-      const cleanLanguagesKnown = typeof languagesKnown === 'string' ? languagesKnown.slice(0, 100) : 'English';
-      const cleanDietaryRestrictions = typeof dietaryRestrictions === 'string' ? dietaryRestrictions.slice(0, 200) : 'None';
-      const cleanAccessibilityRequirements = typeof accessibilityRequirements === 'string' ? accessibilityRequirements.slice(0, 200) : 'None';
-      const cleanTransportationPreference = typeof transportationPreference === 'string' ? transportationPreference.slice(0, 100) : 'Any';
-
-      // Initialize GoogleGenAI client lazily
-      const ai = new GoogleGenAI({
-        apiKey,
-        httpOptions: {
-          headers: {
-            'User-Agent': 'aistudio-build',
-          }
-        }
+// API Endpoint: Generate Immersive Travel Journey
+app.post('/api/generate-journey', async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(400).json({
+        error: 'Gemini API key is not configured. Please set the GEMINI_API_KEY in the Secrets panel in AI Studio.'
       });
+    }
 
-      // Construct a highly descriptive prompt incorporating all 15 workflow steps
-      const prompt = `
+    const params = req.body || {};
+    let {
+      destination,
+      duration,
+      travelers,
+      ageGroup,
+      budget,
+      travelStyle = [],
+      physicalLimitations = 'None',
+      languagesKnown = 'English',
+      dietaryRestrictions = 'None',
+      accessibilityRequirements = 'None',
+      transportationPreference = 'Any',
+      interests = []
+    } = params;
+
+    // 1. INPUT VALIDATION & SANITIZATION
+    if (!destination || typeof destination !== 'string') {
+      return res.status(400).json({ error: 'Destination must be a non-empty string.' });
+    }
+    destination = destination.trim().replace(/[<>]/g, '').slice(0, 100); // Strip potential tags & cap size
+
+    const parsedDuration = Math.min(Math.max(parseInt(String(duration), 10) || 3, 1), 14);
+    const parsedTravelers = Math.min(Math.max(parseInt(String(travelers), 10) || 1, 1), 20);
+
+    const validatedAgeGroup = typeof ageGroup === 'string' ? ageGroup.trim().slice(0, 30) : '20s-40s';
+    const validatedBudget = typeof budget === 'string' ? budget.trim().slice(0, 20) : 'moderate';
+
+    const validatedTravelStyle = Array.isArray(travelStyle) 
+      ? travelStyle.filter(item => typeof item === 'string').map(item => item.slice(0, 50))
+      : [];
+    const validatedInterests = Array.isArray(interests)
+      ? interests.filter(item => typeof item === 'string').map(item => item.slice(0, 50))
+      : [];
+
+    const cleanPhysicalLimitations = typeof physicalLimitations === 'string' ? physicalLimitations.slice(0, 200) : 'None';
+    const cleanLanguagesKnown = typeof languagesKnown === 'string' ? languagesKnown.slice(0, 100) : 'English';
+    const cleanDietaryRestrictions = typeof dietaryRestrictions === 'string' ? dietaryRestrictions.slice(0, 200) : 'None';
+    const cleanAccessibilityRequirements = typeof accessibilityRequirements === 'string' ? accessibilityRequirements.slice(0, 200) : 'None';
+    const cleanTransportationPreference = typeof transportationPreference === 'string' ? transportationPreference.slice(0, 100) : 'Any';
+
+    // Initialize GoogleGenAI client lazily
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+
+    // Construct a highly descriptive prompt incorporating all 15 workflow steps
+    const prompt = `
 You are Roamora, an elite AI travel planner, cultural storyteller, heritage expert, local guide, trip optimizer, and experience designer.
 Your goal is to create a deeply immersive, educational, highly personalized, and authentic journey for the destination: "${destination}".
 
@@ -226,50 +224,56 @@ interface JourneyResponse {
 }
 `;
 
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.7,
-        },
-      });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        temperature: 0.7,
+      },
+    });
 
-      const responseText = response.text;
-      if (!responseText) {
-        throw new Error('No response from Gemini API');
-      }
-
-      // Parse JSON safely
-      const parsedJourney = JSON.parse(responseText.trim());
-      res.json(parsedJourney);
-    } catch (error: any) {
-      console.error('Error in /api/generate-journey:', error);
-      // Clean up error message to prevent client leakage of sensitive system errors
-      res.status(500).json({
-        error: 'An error occurred while crafting your cultural journey. Please try again with a different destination.'
-      });
+    const responseText = response.text;
+    if (!responseText) {
+      throw new Error('No response from Gemini API');
     }
-  });
 
-  // Setup Vite Dev Server / Static files depending on environment
+    // Parse JSON safely
+    const parsedJourney = JSON.parse(responseText.trim());
+    res.json(parsedJourney);
+  } catch (error: any) {
+    console.error('Error in /api/generate-journey:', error);
+    // Clean up error message to prevent client leakage of sensitive system errors
+    res.status(500).json({
+      error: 'An error occurred while crafting your cultural journey. Please try again with a different destination.'
+    });
+  }
+});
+
+// Setup Vite Dev Server / Static serving depending on environment
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  
   if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
+    createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
+    }).then((vite) => {
+      app.use(vite.middlewares);
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Roamora Dev Server running on port ${PORT}`);
+      });
     });
-    app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Roamora Server running on port ${PORT}`);
+    });
   }
-
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Roamora Server running on port ${PORT}`);
-  });
 }
 
-startServer();
+export default app;
