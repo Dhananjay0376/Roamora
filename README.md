@@ -1,7 +1,4 @@
-<div align="center">
-  <img src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" width="100%" alt="Roamora Elite Planner Banner" style="border-radius: 12px; margin-bottom: 20px;" />
-
-  <h1>🗺️ Roamora Elite Planner</h1>
+<h1>🗺️ Roamora Elite Planner</h1>
   <p><strong>Deep Immersion, Local Lore & Heritage Journeys Powered by Gemini 3.5 Flash</strong></p>
 
   <p>
